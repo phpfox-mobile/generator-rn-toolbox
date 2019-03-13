@@ -33,6 +33,12 @@ class ResourcesGenerator extends Base {
       type: asset => asset,
       desc: 'Name of your react-native project',
     });
+    
+    this.option('updateXcode', {
+      type: asset => asset,
+      desc: 'Name of your react-native project',
+      default: false
+    });
     this.option('assetsOutputPath', {
       type: asset => asset,
       desc: 'Name of your react-native project',
@@ -162,29 +168,33 @@ class ResourcesGenerator extends Base {
       `${iosSplashFolder}/Contents.json`
     );
 
-    const pbxprojPath = this.destinationPath(
+    if(this.options.updateXcode){
+    
+       const pbxprojPath = this.destinationPath(
       `ios/${this.projectName}.xcodeproj/project.pbxproj`
-    );
-    this.fs.write(
-      pbxprojPath,
-      this.fs
-        .read(pbxprojPath)
-        .replace(
-          /(\s*)?ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;(?:(\s*)(ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;)?)*/g,
-          `$1ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;$1ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;$1`
-        )
-    );
+      );
+      this.fs.write(
+        pbxprojPath,
+        this.fs
+          .read(pbxprojPath)
+          .replace(
+            /(\s*)?ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;(?:(\s*)(ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;)?)*/g,
+            `$1ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;$1ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;$1`
+          )
+      );
 
-    const plistPath = this.destinationPath(
-      `ios/${this.projectName}/Info.plist`
-    );
-    this.fs.write(
-      plistPath,
-      this.fs
-        .read(plistPath)
-        .replace('<key>UILaunchStoryboardName</key>', '')
-        .replace('<string>LaunchScreen</string>', '')
-    );
+      const plistPath = this.destinationPath(
+        `ios/${this.projectName}/Info.plist`
+      );
+    
+      this.fs.write(
+        plistPath,
+        this.fs
+          .read(plistPath)
+          .replace('<key>UILaunchStoryboardName</key>', '')
+          .replace('<string>LaunchScreen</string>', '')
+      );
+    }
 
     return imageGenerator.generateIosSplashScreen(
       this.options.splash,
